@@ -130,14 +130,22 @@
   }
   .task-row.done .task-text { text-decoration: line-through; color: var(--ink-soft); }
   .task-row .task-text { flex: 1; word-break: break-word; }
+  .task-row .task-icon { font-size: 1.1rem; flex-shrink: 0; }
   .task-row .stars { font-size: 0.7rem; color: var(--red); white-space: nowrap; }
   .task-row .stars .empty { color: #d8cdb8; }
   .task-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--red); cursor: pointer; flex-shrink: 0; }
-  .task-row .del-btn {
+  .task-row .task-text { cursor: text; }
+  .task-row .edit-btn, .task-row .del-btn {
     border: none; background: none; color: var(--ink-soft); box-shadow: none;
-    font-size: 1.1rem; padding: 0 2px; cursor: pointer; line-height: 1;
+    font-size: 1rem; padding: 0 2px; cursor: pointer; line-height: 1; flex-shrink: 0;
   }
+  .task-row .edit-btn:hover { color: var(--sky); }
+  .task-row .del-btn { font-size: 1.1rem; }
   .task-row .del-btn:hover { color: var(--red); }
+  .task-row .edit-input {
+    flex: 1; font-family: inherit; font-size: 0.88rem; padding: 3px 7px;
+    border: 2px solid var(--ink); border-radius: 6px; background: #fff; color: var(--ink); min-width: 0;
+  }
 
   .empty-hint { text-align: center; color: var(--ink-soft); font-size: 0.82rem; padding: 26px 10px; }
 
@@ -656,13 +664,73 @@
     tasks.forEach((task) => {
       const row = document.createElement("li");
       row.className = "task-row" + (task.done ? " done" : "");
-      row.innerHTML =
-        `<span class="stars">${starString(task.priority)}</span>` +
-        `<span class="task-text">${task.text}</span>` +
-        `<button class="del-btn" title="삭제">×</button>`;
-      row.querySelector(".del-btn").addEventListener("click", () => deleteTask(task.id));
+
+      const icon = document.createElement("span");
+      icon.className = "task-icon";
+      icon.textContent = emojiFor(task.text);
+
+      const stars = document.createElement("span");
+      stars.className = "stars";
+      stars.innerHTML = starString(task.priority);
+
+      const textSpan = document.createElement("span");
+      textSpan.className = "task-text";
+      textSpan.textContent = task.text;
+      textSpan.title = "탭하여 수정";
+      textSpan.addEventListener("click", () => startEditTask(task.id, textSpan));
+
+      const editBtn = document.createElement("button");
+      editBtn.className = "edit-btn";
+      editBtn.title = "수정";
+      editBtn.textContent = "✎";
+      editBtn.addEventListener("click", () => startEditTask(task.id, textSpan));
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "del-btn";
+      delBtn.title = "삭제";
+      delBtn.textContent = "×";
+      delBtn.addEventListener("click", () => deleteTask(task.id));
+
+      row.appendChild(icon);
+      row.appendChild(stars);
+      row.appendChild(textSpan);
+      row.appendChild(editBtn);
+      row.appendChild(delBtn);
       list.appendChild(row);
     });
+  }
+
+  function startEditTask(id, textSpan) {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "edit-input";
+    input.maxLength = 20;
+    input.value = task.text;
+    textSpan.replaceWith(input);
+    input.focus();
+    input.select();
+
+    let committed = false;
+    function commit() {
+      if (committed) return;
+      committed = true;
+      const val = input.value.trim();
+      if (val) {
+        task.text = val;
+        saveTasks();
+      }
+      renderHomeList();
+      renderTaskCheckList();
+      renderComic();
+    }
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+      if (e.key === "Escape") { e.preventDefault(); committed = true; renderHomeList(); }
+    });
+    input.addEventListener("blur", commit);
   }
 
   function updateAddFormState() {
@@ -708,6 +776,10 @@
       checkbox.disabled = isGeneratingFeedback;
       checkbox.addEventListener("change", () => toggleTask(task.id));
 
+      const icon = document.createElement("span");
+      icon.className = "task-icon";
+      icon.textContent = emojiFor(task.text);
+
       const stars = document.createElement("span");
       stars.className = "stars";
       stars.innerHTML = starString(task.priority);
@@ -717,6 +789,7 @@
       textSpan.textContent = task.text;
 
       row.appendChild(checkbox);
+      row.appendChild(icon);
       row.appendChild(stars);
       row.appendChild(textSpan);
       list.appendChild(row);
@@ -804,7 +877,6 @@
     updateAddFormState();
     renderTaskCheckList();
     renderComic();
-    showScreen("tasks");
   }
 
   function toggleTask(id) {
