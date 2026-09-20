@@ -3,342 +3,338 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>오늘의 만화 TODO</title>
+<title>DayToon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #1a1a1a;
-    --paper: #fdf8ee;
-    --panel-empty: #f0ece0;
-    --panel-done: #fff4c2;
-    --accent: #ff5a5f;
-    --accent-dark: #d63d42;
-    --line: 4px;
+    --paper: #FFF8E7;
+    --card: #FFFDF6;
+    --ink: #4A3B2A;
+    --ink-soft: #94826A;
+    --red: #E85555;
+    --yellow: #F5C842;
+    --green: #5BAD6F;
+    --sky: #5B9AD5;
   }
 
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body { height: 100%; }
 
   body {
     margin: 0;
-    min-height: 100vh;
-    background: var(--paper);
-    background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
-    background-size: 14px 14px;
-    font-family: "Segoe UI", "Malgun Gothic", -apple-system, sans-serif;
+    background: #EFE6D0;
+    background-image: radial-gradient(rgba(74,59,42,0.05) 1px, transparent 1.2px);
+    background-size: 16px 16px;
+    font-family: "Noto Sans KR", sans-serif;
     color: var(--ink);
-    padding: 24px 16px 60px;
   }
 
-  .wrap { max-width: 640px; margin: 0 auto; }
+  .app {
+    max-width: 390px;
+    margin: 0 auto;
+    height: 100vh;
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 0 1px rgba(74,59,42,0.08);
+    position: relative;
+  }
 
-  h1 {
+  header.top {
+    flex-shrink: 0;
     text-align: center;
-    font-size: 1.8rem;
-    letter-spacing: -0.5px;
-    margin: 0 0 4px;
-    text-shadow: 2px 2px 0 var(--accent);
+    padding: 14px 12px 10px;
+    border-bottom: 3px solid var(--ink);
+    background: var(--paper);
   }
-
-  .subtitle { text-align: center; font-size: 0.85rem; color: #666; margin-bottom: 20px; }
+  header.top h1 { margin: 0; font-size: 1.5rem; font-weight: 900; }
+  header.top .today { font-size: 0.75rem; color: var(--ink-soft); margin-top: 2px; font-weight: 500; }
 
   .banner {
     display: none;
-    background: #fff3cd;
-    border: 2px solid #e0a800;
+    background: #FFF3CD;
+    border: 2px dashed #D9A62E;
     color: #6b5300;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.78rem;
-    margin-bottom: 16px;
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 0.7rem;
+    margin: 8px 12px 0;
   }
   .banner.show { display: block; }
 
-  .card {
-    background: #fff;
-    border: var(--line) solid var(--ink);
-    border-radius: 10px;
-    box-shadow: 6px 6px 0 var(--ink);
-    padding: 16px;
-    margin-bottom: 20px;
-  }
+  main.screens { flex: 1; overflow-y: auto; padding: 14px 14px 24px; }
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadein 0.15s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-  .card h2 {
-    margin: 0 0 12px;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .screen-title { font-size: 1.05rem; font-weight: 900; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
+
+  .card {
+    background: var(--card);
+    border: 3px solid var(--ink);
+    border-radius: 14px;
+    box-shadow: 4px 4px 0 rgba(74,59,42,0.16);
+    padding: 14px;
+    margin-bottom: 14px;
   }
 
   input[type="text"] {
     font-family: inherit;
-    font-size: 0.9rem;
-    padding: 8px 10px;
-    border: 2px solid var(--ink);
-    border-radius: 6px;
+    font-size: 0.92rem;
+    padding: 9px 11px;
+    border: 2.5px solid var(--ink);
+    border-radius: 9px;
     background: var(--paper);
+    color: var(--ink);
+    width: 100%;
   }
 
   button {
     font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: bold;
-    padding: 8px 14px;
-    border: 2px solid var(--ink);
-    border-radius: 6px;
-    background: var(--accent);
-    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 700;
+    padding: 9px 16px;
+    border: 2.5px solid var(--ink);
+    border-radius: 10px;
+    background: var(--yellow);
+    color: var(--ink);
     cursor: pointer;
-    transition: transform 0.1s;
+    box-shadow: 3px 3px 0 rgba(74,59,42,0.35);
+    transition: transform 0.08s, box-shadow 0.08s;
   }
-  button:hover { transform: translateY(-1px); }
-  button:active { transform: translateY(1px); }
-  button.secondary { background: #fff; color: var(--ink); }
-  button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  button:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 rgba(74,59,42,0.35); }
+  button:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 rgba(74,59,42,0.35); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 2px 2px 0 rgba(74,59,42,0.2); }
+  button.block { width: 100%; }
+  button.sky { background: var(--sky); color: #fff; }
+  button.green { background: var(--green); color: #fff; }
+  button.ghost { background: var(--paper); box-shadow: none; }
 
-  .add-form { display: flex; gap: 8px; }
-  .add-form input { flex: 1; }
+  label.field-label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--ink-soft); margin: 10px 0 4px; }
 
-  .progress-row { display: flex; align-items: center; gap: 10px; }
+  .star-row { display: flex; gap: 6px; }
+  .star-btn {
+    background: var(--paper); border: 2px solid var(--ink); border-radius: 8px;
+    font-size: 1.1rem; padding: 4px 10px; box-shadow: 2px 2px 0 rgba(74,59,42,0.25); color: #d8cdb8;
+  }
+  .star-btn.filled { color: var(--red); }
+
+  .task-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .task-row {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--paper); border: 2.5px solid var(--ink);
+    border-radius: 10px; padding: 8px 10px; font-size: 0.88rem;
+  }
+  .task-row.done .task-text { text-decoration: line-through; color: var(--ink-soft); }
+  .task-row .task-text { flex: 1; word-break: break-word; }
+  .task-row .stars { font-size: 0.7rem; color: var(--red); white-space: nowrap; }
+  .task-row .stars .empty { color: #d8cdb8; }
+  .task-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--red); cursor: pointer; flex-shrink: 0; }
+  .task-row .del-btn {
+    border: none; background: none; color: var(--ink-soft); box-shadow: none;
+    font-size: 1.1rem; padding: 0 2px; cursor: pointer; line-height: 1;
+  }
+  .task-row .del-btn:hover { color: var(--red); }
+
+  .empty-hint { text-align: center; color: var(--ink-soft); font-size: 0.82rem; padding: 26px 10px; }
+
+  .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .progress-bar {
-    flex: 1; height: 18px; background: var(--panel-empty);
-    border: 2px solid var(--ink); border-radius: 10px; overflow: hidden;
+    flex: 1; height: 16px; background: var(--paper);
+    border: 2.5px solid var(--ink); border-radius: 9px; overflow: hidden;
   }
-  .progress-fill {
-    height: 100%; width: 0%;
-    background: linear-gradient(90deg, var(--accent), #ffc93c);
-    transition: width 0.4s ease;
-  }
-  .progress-label { font-weight: bold; font-size: 0.85rem; min-width: 54px; text-align: right; }
+  .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--sky), var(--green)); transition: width 0.4s ease; }
+  .progress-label { font-weight: 700; font-size: 0.82rem; min-width: 46px; text-align: right; }
 
-  /* comic grid: fixed 2 columns */
-  .comic-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .empty-state {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: #aaa;
-    font-size: 0.85rem;
-    padding: 30px 0;
-    border: 3px dashed #ddd;
-    border-radius: 8px;
-  }
+  .comic-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
   .panel {
     position: relative;
     aspect-ratio: 1 / 1;
     border: 3px solid var(--ink);
-    border-radius: 6px;
+    border-radius: 12px;
     overflow: hidden;
-    background: var(--panel-empty);
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.18);
+    background: var(--paper);
+    box-shadow: 3px 3px 0 rgba(74,59,42,0.2);
+    display: flex; align-items: center; justify-content: center;
   }
-  /* hand-cut comic panel feel */
-  .comic-grid .panel:nth-child(4n+1) { transform: rotate(-0.6deg); }
-  .comic-grid .panel:nth-child(4n+2) { transform: rotate(0.5deg); }
-  .comic-grid .panel:nth-child(4n+3) { transform: rotate(0.4deg); }
-  .comic-grid .panel:nth-child(4n+4) { transform: rotate(-0.5deg); }
+
+  .panel.empty-slot { border-style: dashed; background: rgba(74,59,42,0.03); }
+  .panel.empty-slot::after { content: "다음 페이지를\A 기다리는 중"; white-space: pre; text-align: center; font-size: 0.66rem; color: rgba(74,59,42,0.35); font-weight: 700; }
+
+  .panel.pending { background: #EAF3FC; border-color: var(--sky); border-style: dashed; }
+  .stamp {
+    border: 3px double var(--sky);
+    color: var(--sky);
+    font-weight: 900;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transform: rotate(-9deg);
+    opacity: 0.88;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  .pending-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .pending-dog { font-size: 1.6rem; }
+  .pending-note { font-size: 0.6rem; color: var(--sky); font-weight: 700; }
+
+  .panel.done { flex-direction: column; gap: 4px; padding: 8px; }
+  .panel-emoji { font-size: 2.6rem; line-height: 1; }
+  .panel-caption {
+    font-size: 0.68rem; text-align: center; background: #fff;
+    border: 2px solid var(--ink); border-radius: 12px; padding: 3px 8px; max-width: 100%;
+    box-shadow: 2px 2px 0 rgba(74,59,42,0.2);
+  }
+  .panel-caption.loading { color: var(--ink-soft); font-style: italic; }
 
   .panel-head {
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    right: 5px;
-    z-index: 3;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    padding: 2px 5px;
-    gap: 4px;
-    background: rgba(255,255,255,0.92);
-    border: 2px solid var(--ink);
-    border-radius: 5px;
-    box-shadow: 2px 2px 0 rgba(0,0,0,0.15);
-    font-size: 0.62rem;
-    line-height: 1.15;
+    position: absolute; top: 4px; left: 4px; right: 4px; z-index: 3;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.58rem; background: rgba(255,253,246,0.9); border: 1.5px solid var(--ink);
+    border-radius: 6px; padding: 1px 4px; gap: 3px;
   }
-  .panel-head .task-text { flex: 1; word-break: break-word; }
-  .panel-head input[type="checkbox"] {
-    width: 14px; height: 14px; accent-color: var(--accent);
-    cursor: pointer; flex-shrink: 0;
-  }
-  .panel-head .del-btn {
-    border: none; background: none; color: #999;
-    font-size: 0.85rem; padding: 0 2px; cursor: pointer; line-height: 1;
-  }
-  .panel-head .del-btn:hover { color: var(--accent-dark); }
+  .panel-head .t { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  .panel-body {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  .feedback-box { display: flex; gap: 10px; align-items: flex-start; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 12px; padding: 12px; }
+  .feedback-box .mascot { font-size: 1.7rem; flex-shrink: 0; }
+  #feedbackText { font-size: 0.9rem; line-height: 1.55; white-space: pre-wrap; }
+  #feedbackText.placeholder { color: var(--ink-soft); font-style: italic; }
+  .feedback-meta { font-size: 0.7rem; color: var(--ink-soft); margin-top: 6px; }
 
-  /* incomplete: hatch pattern + ? */
-  .panel.pending .panel-body {
-    background-image: repeating-linear-gradient(
-      45deg,
-      rgba(0,0,0,0.15) 0,
-      rgba(0,0,0,0.15) 2px,
-      transparent 2px,
-      transparent 9px
-    );
-  }
-  .panel.pending .panel-body::after {
-    content: "?";
-    font-size: 2.4rem;
-    font-weight: bold;
-    color: rgba(0,0,0,0.25);
-  }
-
-  /* done: full-bleed illustration like a real comic panel */
-  .panel.done { background: var(--panel-done); }
-
-  .panel-illustration {
-    position: absolute;
-    inset: 0;
-  }
-  .panel-illustration::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(rgba(0,0,0,0.08) 1px, transparent 1.2px);
-    background-size: 7px 7px;
-    mix-blend-mode: multiply;
-    pointer-events: none;
-  }
-  .panel-illustration svg { width: 100%; height: 100%; display: block; }
-
-  .panel-caption {
-    position: absolute;
-    left: 50%;
-    bottom: 9px;
-    transform: translateX(-50%);
-    z-index: 2;
-    font-size: 0.66rem;
-    text-align: center;
-    background: #fff;
-    border: 2.5px solid var(--ink);
-    border-radius: 14px;
-    padding: 4px 10px;
-    max-width: 86%;
-    box-shadow: 2px 2px 0 rgba(0,0,0,0.18);
-  }
-  .panel-caption::before {
-    content: "";
-    position: absolute;
-    left: 16px;
-    bottom: -9px;
-    border: 7px solid transparent;
-    border-top-color: var(--ink);
-  }
-  .panel-caption::after {
-    content: "";
-    position: absolute;
-    left: 18.5px;
-    bottom: -5.5px;
-    border: 5px solid transparent;
-    border-top-color: #fff;
-  }
-  .panel-caption.loading { color: #999; font-style: italic; }
-
-  #feedbackText { font-size: 0.92rem; line-height: 1.55; white-space: pre-wrap; }
-  #feedbackText.placeholder { color: #999; font-style: italic; }
-  .feedback-meta { font-size: 0.75rem; color: #999; margin-top: 8px; }
-
-  .spinner {
-    display: inline-block; width: 12px; height: 12px;
-    border: 2px solid #ccc; border-top-color: var(--accent);
-    border-radius: 50%; animation: spin 0.7s linear infinite;
-    vertical-align: middle; margin-right: 4px;
-  }
+  .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #ccc; border-top-color: var(--sky); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 4px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-height: 360px;
-    overflow-y: auto;
+  .archive-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .thumb {
+    aspect-ratio: 1/1; border: 2.5px solid var(--ink); border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    cursor: pointer; box-shadow: 2px 2px 0 rgba(74,59,42,0.2); padding: 4px;
+    background: var(--card);
   }
-  .history-item {
-    border: 2px solid var(--ink);
-    border-radius: 8px;
-    padding: 8px 10px;
-    background: var(--paper);
-  }
-  .history-date {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    font-weight: bold;
-    font-size: 0.85rem;
-    margin-bottom: 6px;
-  }
-  .history-rate { font-weight: normal; font-size: 0.75rem; color: #888; }
-  .history-bar-wrap {
-    height: 8px;
-    background: var(--panel-empty);
-    border: 1.5px solid var(--ink);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 6px;
-  }
-  .history-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #ffc93c); }
-  .history-feedback { font-size: 0.78rem; color: #444; line-height: 1.4; }
-  .history-empty { text-align: center; color: #aaa; font-size: 0.85rem; padding: 20px 0; }
+  .thumb .rate { font-weight: 900; font-size: 1rem; }
+  .thumb .date { font-size: 0.58rem; color: var(--ink-soft); font-weight: 700; }
+  .thumb .mini-emojis { font-size: 0.7rem; letter-spacing: 1px; }
 
-  footer { text-align: center; font-size: 0.72rem; color: #aaa; margin-top: 30px; }
+  .archive-empty { text-align: center; color: var(--ink-soft); font-size: 0.85rem; padding: 26px 10px; grid-column: 1 / -1; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(74,59,42,0.55);
+    display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--card); border: 3px solid var(--ink); border-radius: 16px;
+    box-shadow: 5px 5px 0 rgba(74,59,42,0.3); padding: 16px; max-width: 360px; width: 100%;
+    max-height: 82vh; overflow-y: auto;
+  }
+  .modal-box h3 { margin: 0 0 10px; font-size: 1rem; display: flex; justify-content: space-between; align-items: center; }
+  .modal-box .close-btn { padding: 4px 10px; font-size: 0.8rem; }
+  .modal-box .comic-grid { margin-bottom: 10px; }
+  .modal-feedback { font-size: 0.82rem; line-height: 1.5; background: var(--paper); border: 2px solid var(--ink); border-radius: 10px; padding: 8px 10px; }
+
+  nav.bottom-nav {
+    flex-shrink: 0; display: flex; border-top: 3px solid var(--ink); background: var(--card);
+  }
+  nav.bottom-nav button {
+    flex: 1; border: none; border-radius: 0; background: transparent; box-shadow: none;
+    padding: 8px 4px 10px; font-size: 0.68rem; font-weight: 700; color: var(--ink-soft);
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  nav.bottom-nav button .icon { font-size: 1.25rem; }
+  nav.bottom-nav button.active { color: var(--red); }
+  nav.bottom-nav button:hover { transform: none; box-shadow: none; }
+  nav.bottom-nav button:active { transform: none; box-shadow: none; }
+
+  @media (max-width: 400px) { .app { max-width: 100%; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>오늘의 만화 TODO</h1>
-  <p class="subtitle">할 일을 끝내면 만화 칸이 채워집니다. 미루면 빈칸이 남아요.</p>
+<div class="app">
+  <header class="top">
+    <h1>🐾 DayToon</h1>
+    <div class="today" id="todayLabel"></div>
+    <div class="banner" id="keyBanner">⚠️ OpenRouter API 키/모델이 비어있어요. index.html 상단의 <code>OPENROUTER_KEY</code>, <code>OPENROUTER_MODEL</code>을 채워주세요. 없어도 기본 문구로 동작해요.</div>
+  </header>
 
-  <div class="banner" id="keyBanner">⚠️ OpenRouter API 키가 설정되지 않았습니다. index.html 상단의 <code>OPENROUTER_KEY</code> 상수를 채워주세요. 키가 없어도 앱은 기본 문구로 동작합니다.</div>
+  <main class="screens">
 
-  <div class="card">
-    <h2>✏️ 할 일 추가 <span style="font-weight:normal;color:#999;" id="taskCountLabel">(0/6)</span></h2>
-    <form class="add-form" id="addForm">
-      <input type="text" id="taskInput" placeholder="오늘 할 일을 적어보세요" maxlength="40">
-      <button type="submit">추가</button>
-    </form>
-  </div>
+    <!-- 홈 화면: 할 일 입력 -->
+    <section class="screen active" id="screen-home">
+      <h2 class="screen-title">✏️ 오늘 할 일 추가</h2>
+      <div class="card">
+        <form id="addForm">
+          <input type="text" id="taskInput" placeholder="오늘 할 일을 적어보세요" maxlength="20">
+          <label class="field-label">중요도</label>
+          <div class="star-row" id="starRow">
+            <button type="button" class="star-btn" data-value="1">★</button>
+            <button type="button" class="star-btn" data-value="2">★</button>
+            <button type="button" class="star-btn" data-value="3">★</button>
+          </div>
+          <button type="submit" class="block" style="margin-top:12px;" id="addSubmitBtn">추가하기</button>
+        </form>
+      </div>
+      <div class="card" id="homeListCard">
+        <label class="field-label" style="margin-top:0;">오늘 추가한 할 일 <span id="homeCountLabel"></span></label>
+        <ul class="task-list" id="homeTaskList"></ul>
+      </div>
+    </section>
 
-  <div class="card">
-    <h2>📊 달성률</h2>
-    <div class="progress-row">
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-label" id="progressLabel">0 / 0</div>
+    <!-- 할 일 화면: 체크 목록 + 출판 -->
+    <section class="screen" id="screen-tasks">
+      <h2 class="screen-title">✅ 오늘의 할 일</h2>
+      <div class="card">
+        <div class="progress-row">
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-label" id="progressLabel">0 / 0</div>
+        </div>
+        <ul class="task-list" id="taskCheckList"></ul>
+      </div>
+      <button class="block sky" id="publishBtn">📖 출판하기</button>
+    </section>
+
+    <!-- 그림일기 화면: 4컷 -->
+    <section class="screen" id="screen-diary">
+      <h2 class="screen-title">📖 오늘의 그림일기</h2>
+      <div class="card">
+        <div class="comic-grid" id="comicGrid"></div>
+      </div>
+      <div class="card">
+        <div class="feedback-box">
+          <span class="mascot">🐶</span>
+          <div style="flex:1;">
+            <div id="feedbackText" class="placeholder">할 일 화면에서 "출판하기"를 누르면 다정한 코멘트가 도착해요.</div>
+            <div class="feedback-meta" id="feedbackMeta"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 보관함 화면 -->
+    <section class="screen" id="screen-archive">
+      <h2 class="screen-title">🗂 보관함</h2>
+      <div class="archive-grid" id="archiveGrid"></div>
+    </section>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <button data-screen="home" class="active"><span class="icon">🏠</span>홈</button>
+    <button data-screen="tasks"><span class="icon">✅</span>할 일</button>
+    <button data-screen="diary"><span class="icon">📖</span>일기</button>
+    <button data-screen="archive"><span class="icon">🗂</span>보관함</button>
+  </nav>
+
+  <div class="modal-overlay" id="archiveModal">
+    <div class="modal-box">
+      <h3><span id="modalDate"></span><button class="close-btn" id="modalCloseBtn">닫기 ×</button></h3>
+      <div class="comic-grid" id="modalGrid"></div>
+      <div class="modal-feedback" id="modalFeedback"></div>
     </div>
   </div>
-
-  <div class="card">
-    <h2>🖼️ 오늘의 만화</h2>
-    <div class="comic-grid" id="comicGrid"></div>
-  </div>
-
-  <div class="card">
-    <h2>🌙 하루 마무리</h2>
-    <div id="feedbackText" class="placeholder">버튼을 누르면 오늘 하루를 분석한 AI 피드백이 표시됩니다.</div>
-    <div class="feedback-meta" id="feedbackMeta"></div>
-    <div style="margin-top:10px;">
-      <button id="feedbackBtn">하루 마무리</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>📅 지난 기록</h2>
-    <div class="history-list" id="historyList"></div>
-  </div>
-
-  <footer>날짜가 바뀌면 자동으로 초기화됩니다 · GitHub Pages</footer>
 </div>
 
 <script>
@@ -346,23 +342,25 @@
   "use strict";
 
   // ---------- OpenRouter 설정 (코드 내장 키, 사용자 입력 없음) ----------
-    const OPENROUTER_KEY = "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";
-  // 참고: OpenRouter 무료 모델 목록은 자주 바뀝니다. 404/400 오류가 나면
-  // https://openrouter.ai/models 에서 ":free" 모델을 다시 확인해 교체하세요.
-  const OPENROUTER_MODEL = "deepseek/deepseek-v4-flash-0731:free";
+  const OPENROUTER_KEY = "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";
+  // 참고: OpenRouter 무료 모델 목록은 자주 바뀝니다. https://openrouter.ai/models 에서
+  // 현재 존재하는 ":free" 모델 슬러그인지 확인 후 사용하세요. 없는 슬러그는 400/404 에러가 납니다.
+  const OPENROUTER_MODEL = "google/gemma-4-26b-a4b-it:free";
   const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-  const LS_DATE = "webtoon_todo_date";
-  const LS_TASKS = "webtoon_todo_tasks";
-  const LS_FEEDBACK = "webtoon_todo_feedback";
-  const LS_HISTORY = "webtoon_todo_history";
-  const MAX_TASKS = 6;
-  const MAX_HISTORY = 30;
+  const LS_DATE = "daytoon_date";
+  const LS_TASKS = "daytoon_tasks";
+  const LS_FEEDBACK = "daytoon_feedback";
+  const LS_ARCHIVE = "daytoon_archive";
+  const MAX_TASKS = 4;
+  const MAX_ARCHIVE = 60;
   const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+  const PENDING_NOTES = ["내일 다시 만나요!", "조금만 기다려 줄게!", "내일 그리면 돼요!", "천천히 해도 괜찮아요!"];
 
   let tasks = [];
   let feedback = null; // { date, text, generatedAt }
   let isGeneratingFeedback = false;
+  let newTaskStars = 2;
 
   const $ = (id) => document.getElementById(id);
   const todayStr = () => {
@@ -373,98 +371,40 @@
     const [y, m, d] = dateStr.split("-").map(Number);
     return WEEKDAYS[new Date(y, m - 1, d).getDay()];
   };
+  const formatDateLabel = (dateStr) => {
+    const [y, m, d] = dateStr.split("-");
+    return `${Number(m)}월 ${Number(d)}일 (${weekdayLabel(dateStr)})`;
+  };
+  const noteFor = (id) => {
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+    return PENDING_NOTES[h % PENDING_NOTES.length];
+  };
+  const starString = (n) => "★".repeat(n) + '<span class="empty">' + "★".repeat(3 - n) + "</span>";
 
-  // ---------- 키워드 → 일러스트 카테고리 매칭 ----------
+  // ---------- 키워드 → 이모지 카테고리 매칭 ----------
   const CATEGORIES = [
-    { id: "exercise", label: "운동", keywords: ["운동", "헬스", "달리기", "러닝", "조깅", "요가", "수영", "축구", "농구", "필라테스", "산책", "헬스장"] },
-    { id: "food", label: "음식", keywords: ["밥", "식사", "점심", "저녁", "아침식사", "요리", "다이어트", "식단", "먹기", "브런치"] },
-    { id: "sleep", label: "수면", keywords: ["잠", "수면", "취침", "낮잠", "일찍자기"] },
-    { id: "wake", label: "기상", keywords: ["기상", "일어나기", "알람", "미라클모닝", "일찍일어나기"] },
-    { id: "study", label: "공부", keywords: ["공부", "수업", "책", "독서", "강의", "시험", "과제", "숙제", "복습"] },
-    { id: "coding", label: "코딩", keywords: ["코딩", "개발", "프로그래밍", "코드", "버그", "깃", "git", "디버그", "리팩터"] },
-    { id: "game", label: "게임", keywords: ["게임", "오락", "플레이", "콘솔", "닌텐도", "플스", "스팀", "롤", "오버워치"] }
+    { id: "exercise", emoji: "🏃", label: "운동", keywords: ["운동", "헬스", "달리기", "러닝", "조깅", "요가", "수영", "산책", "필라테스"] },
+    { id: "food", emoji: "🍱", label: "식사", keywords: ["밥", "식사", "점심", "저녁", "아침식사", "요리", "브런치", "먹기"] },
+    { id: "sleep", emoji: "😴", label: "수면", keywords: ["잠", "수면", "취침", "낮잠", "일찍자기"] },
+    { id: "study", emoji: "📚", label: "공부", keywords: ["공부", "수업", "책", "독서", "강의", "시험", "과제", "숙제", "복습"] },
+    { id: "coding", emoji: "💻", label: "코딩", keywords: ["코딩", "개발", "프로그래밍", "코드", "버그", "깃", "git", "디버그"] },
+    { id: "meeting", emoji: "💬", label: "회의", keywords: ["회의", "미팅", "발표", "면담", "상담"] },
+    { id: "clean", emoji: "🧹", label: "청소", keywords: ["청소", "정리", "빨래", "설거지"] },
+    { id: "friend", emoji: "👫", label: "만남", keywords: ["친구", "만남", "약속", "데이트", "모임"] }
   ];
 
   function matchCategory(text) {
     for (const cat of CATEGORIES) {
       if (cat.keywords.some((k) => text.includes(k))) return cat;
     }
-    return { id: "default", label: "달성" };
+    return { id: "default", emoji: "⭐", label: "달성" };
+  }
+  function emojiFor(text) {
+    return matchCategory(text).emoji;
   }
 
-  // ---------- 카테고리별 인라인 SVG 일러스트 (외부 의존성 없음) ----------
-  const ILLUSTRATIONS = {
-    exercise: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="70" cy="70" r="62" fill="#FFEFD8"/>
-      <circle cx="70" cy="46" r="16" fill="#2D2D2D"/>
-      <rect x="52" y="64" width="36" height="46" rx="12" fill="#FF5A5F"/>
-      <rect x="22" y="66" width="26" height="10" rx="5" fill="#2D2D2D" transform="rotate(-20 35 71)"/>
-      <rect x="92" y="66" width="26" height="10" rx="5" fill="#2D2D2D" transform="rotate(20 105 71)"/>
-      <circle cx="20" cy="70" r="9" fill="#444"/>
-      <circle cx="120" cy="70" r="9" fill="#444"/>
-      <rect x="58" y="108" width="10" height="24" rx="4" fill="#2D2D2D"/>
-      <rect x="74" y="108" width="10" height="24" rx="4" fill="#2D2D2D"/>
-    </svg>`,
-    food: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="70" cy="70" r="62" fill="#FFF3E0"/>
-      <path d="M22 88 a48 32 0 0 0 96 0 Z" fill="#FFC93C"/>
-      <ellipse cx="70" cy="88" rx="48" ry="13" fill="#D9822B"/>
-      <path d="M53 38 q-5 20 0 32" stroke="#D9822B" stroke-width="4" fill="none" stroke-linecap="round"/>
-      <path d="M70 32 q-5 22 0 38" stroke="#D9822B" stroke-width="4" fill="none" stroke-linecap="round"/>
-      <path d="M87 38 q5 20 0 32" stroke="#D9822B" stroke-width="4" fill="none" stroke-linecap="round"/>
-    </svg>`,
-    sleep: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="70" cy="70" r="62" fill="#E8E3FF"/>
-      <path d="M88 28a42 42 0 1 0 22 68 34 34 0 0 1-22-68Z" fill="#5B4B9E"/>
-      <circle cx="38" cy="34" r="3" fill="#5B4B9E"/>
-      <circle cx="52" cy="22" r="2" fill="#5B4B9E"/>
-      <text x="92" y="58" font-size="18" fill="#5B4B9E" font-family="sans-serif" font-weight="bold">Z</text>
-      <text x="104" y="44" font-size="13" fill="#5B4B9E" font-family="sans-serif" font-weight="bold">z</text>
-      <text x="112" y="33" font-size="9" fill="#5B4B9E" font-family="sans-serif" font-weight="bold">z</text>
-    </svg>`,
-    study: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="70" cy="70" r="62" fill="#E1F5E9"/>
-      <rect x="32" y="54" width="76" height="52" rx="4" fill="#2A8F4E"/>
-      <rect x="32" y="54" width="38" height="52" rx="4" fill="#3FB56A"/>
-      <line x1="70" y1="54" x2="70" y2="106" stroke="#1F6B3A" stroke-width="2"/>
-      <line x1="41" y1="66" x2="61" y2="66" stroke="#fff" stroke-width="2" opacity="0.7"/>
-      <line x1="41" y1="77" x2="61" y2="77" stroke="#fff" stroke-width="2" opacity="0.7"/>
-      <line x1="79" y1="66" x2="99" y2="66" stroke="#fff" stroke-width="2" opacity="0.7"/>
-      <line x1="79" y1="77" x2="99" y2="77" stroke="#fff" stroke-width="2" opacity="0.7"/>
-      <rect x="60" y="26" width="6" height="30" rx="3" fill="#F4B740" transform="rotate(30 63 41)"/>
-    </svg>`,
-    coding: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="70" cy="70" r="62" fill="#E4ECF7"/>
-      <rect x="26" y="44" width="88" height="56" rx="6" fill="#2D2D2D"/>
-      <rect x="33" y="51" width="74" height="42" rx="2" fill="#1A1A2E"/>
-      <text x="70" y="80" font-size="20" fill="#3FE0A0" font-family="monospace" text-anchor="middle" font-weight="bold">&lt;/&gt;</text>
-      <rect x="18" y="100" width="104" height="8" rx="4" fill="#555"/>
-    </svg>`,
-    wake: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="70" cy="70" r="62" fill="#FFF6DA"/>
-      <g stroke="#F4B740" stroke-width="5" stroke-linecap="round">
-        <line x1="70" y1="26" x2="70" y2="14"/>
-        <line x1="38" y1="38" x2="29" y2="29"/>
-        <line x1="102" y1="38" x2="111" y2="29"/>
-      </g>
-      <path d="M32 88 a38 38 0 0 1 76 0 Z" fill="#FFC93C"/>
-      <rect x="18" y="88" width="104" height="8" rx="4" fill="#D9822B"/>
-    </svg>`,
-    game: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="70" cy="70" r="62" fill="#EDE4FF"/>
-      <path d="M40 58 h60 a20 20 0 0 1 20 24 l-4 18 a12 12 0 0 1-20 8 l-10-12 H54 l-10 12 a12 12 0 0 1-20-8 l-4-18 A20 20 0 0 1 40 58 Z" fill="#6C4BD1"/>
-      <line x1="46" y1="76" x2="58" y2="76" stroke="#fff" stroke-width="3"/>
-      <line x1="52" y1="70" x2="52" y2="82" stroke="#fff" stroke-width="3"/>
-      <circle cx="92" cy="72" r="4" fill="#FF5A5F"/>
-      <circle cx="102" cy="80" r="4" fill="#3FE0A0"/>
-    </svg>`,
-    default: `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="70" cy="70" r="62" fill="#FFF6DA"/>
-      <path d="M70 30 l10 20 22 3 -16 16 4 22 -20 -11 -20 11 4 -22 -16 -16 22 -3Z" fill="#F4B740" stroke="#D9822B" stroke-width="2"/>
-    </svg>`
-  };
-
-  // ---------- state ----------
+  // ---------- 저장 / 보관함 ----------
   function archiveDay(dateStr) {
     let oldTasks = [];
     let oldFeedback = null;
@@ -476,19 +416,20 @@
     const done = oldTasks.filter((t) => t.done).length;
     const rate = total ? Math.round((done / total) * 100) : 0;
 
-    let history = [];
-    try { history = JSON.parse(localStorage.getItem(LS_HISTORY)) || []; } catch (e) {}
-    history = history.filter((h) => h.date !== dateStr);
-    history.push({
+    let archive = [];
+    try { archive = JSON.parse(localStorage.getItem(LS_ARCHIVE)) || []; } catch (e) {}
+    archive = archive.filter((a) => a.date !== dateStr);
+    archive.push({
       date: dateStr,
       total,
       done,
       rate,
+      tasks: oldTasks,
       feedbackText: (oldFeedback && oldFeedback.date === dateStr) ? oldFeedback.text : ""
     });
-    history.sort((a, b) => a.date.localeCompare(b.date));
-    if (history.length > MAX_HISTORY) history = history.slice(history.length - MAX_HISTORY);
-    localStorage.setItem(LS_HISTORY, JSON.stringify(history));
+    archive.sort((a, b) => a.date.localeCompare(b.date));
+    if (archive.length > MAX_ARCHIVE) archive = archive.slice(archive.length - MAX_ARCHIVE);
+    localStorage.setItem(LS_ARCHIVE, JSON.stringify(archive));
   }
 
   function loadState() {
@@ -524,12 +465,12 @@
   }
 
   function hasApiKey() {
-    return !!OPENROUTER_KEY && OPENROUTER_KEY !== "여기에키입력";
+    return !!OPENROUTER_KEY && !!OPENROUTER_MODEL && OPENROUTER_MODEL !== "여기에모델슬러그입력";
   }
 
   // ---------- OpenRouter 호출 ----------
   async function callOpenRouter(prompt, maxTokens) {
-    if (!hasApiKey()) throw new Error("API 키가 설정되지 않았습니다.");
+    if (!hasApiKey()) throw new Error("API 키 또는 모델이 설정되지 않았습니다.");
 
     const res = await fetch(OPENROUTER_URL, {
       method: "POST",
@@ -537,7 +478,7 @@
         "content-type": "application/json",
         "authorization": "Bearer " + OPENROUTER_KEY,
         "HTTP-Referer": location.origin || "https://github.com",
-        "X-Title": "Webtoon Todo"
+        "X-Title": "DayToon"
       },
       body: JSON.stringify({
         model: OPENROUTER_MODEL,
@@ -557,17 +498,18 @@
 
   async function generateCaption(task) {
     const cat = matchCategory(task.text);
+    task.category = cat.id;
     const prompt =
-      `다음은 사용자가 방금 완료한 할 일입니다: "${task.text}" (분류: ${cat.label})\n` +
-      `이 할 일을 완료한 순간을 표현하는 웹툰 말풍선 대사를 만들어줘.\n` +
-      `조건: 20자 이내, 생동감 있는 한국어, 반말 또는 감탄사 활용 가능, 따옴표나 설명 없이 대사만 출력.`;
+      `방금 완료한 할 일: "${task.text}" (분류: ${cat.label})\n` +
+      `이 순간을 그림일기 말풍선 대사로 표현해줘.\n` +
+      `조건: 20자 이내, 따뜻하고 다정한 한국어, 반말이나 감탄사 활용 가능, 따옴표나 설명 없이 대사만 출력.`;
     try {
       task.captionLoading = true;
       renderComic();
       const caption = await callOpenRouter(prompt, 100);
-      task.caption = caption || "완료!";
+      task.caption = caption || "오늘도 해냈다!";
     } catch (e) {
-      task.caption = "완료!";
+      task.caption = "오늘도 해냈다!";
       console.warn("캡션 생성 실패:", e.message);
     } finally {
       task.captionLoading = false;
@@ -578,26 +520,19 @@
 
   function buildLocalFeedback(done, total, rate, pendingList) {
     if (rate === 100) {
-      return `오늘 달성률 100%! (${done}/${total}개 완료) 완벽한 하루였어요. 이 페이스 계속 가봐요.`;
+      return `오늘은 ${total}개 모두 그림으로 채웠어요! 정말 근사한 하루였어요.`;
     }
-    if (rate >= 70) {
-      return `오늘 달성률은 ${rate}%예요 (${done}/${total}개 완료). 나쁘지 않지만 "${pendingList}"는 아직 남았어요. 잊지 말고 마무리해봐요.`;
+    if (done === 0) {
+      return `오늘은 아직 그려진 페이지가 없어요. "${pendingList}"는 원고 미도착이지만, 내일 다시 펼치면 돼요.`;
     }
-    if (rate >= 40) {
-      return `오늘 달성률은 ${rate}%예요 (${done}/${total}개 완료). 절반 가까이 미뤘네요 — "${pendingList}", 내일로 넘기지 말고 꼭 해치우세요.`;
-    }
-    if (rate > 0) {
-      return `오늘 달성률 겨우 ${rate}%예요 (${done}/${total}개 완료). "${pendingList}"를 이렇게 다 미루면 습관이 됩니다. 내일은 진짜 달라져야 해요.`;
-    }
-    return `오늘 달성률 0%... 계획만 세우고 손도 안 댔네요. "${pendingList}" 중 내일은 최소 하나라도 꼭 시작하세요.`;
+    return `오늘은 ${done}/${total}개를 완성했어요 (${rate}%). "${pendingList}"는 원고 미도착으로 남았지만 내일 다시 그리면 되니까 괜찮아요.`;
   }
 
   async function generateFeedback() {
     if (isGeneratingFeedback) return;
 
-    const btn = $("feedbackBtn");
     if (tasks.length === 0) {
-      alert("아직 추가된 할 일이 없습니다.");
+      alert("아직 추가된 할 일이 없어요. 홈 화면에서 먼저 추가해주세요.");
       return;
     }
 
@@ -608,21 +543,14 @@
     const pendingList = tasks.filter((t) => !t.done).map((t) => t.text).join(", ") || "없음";
 
     isGeneratingFeedback = true;
-    renderComic();
-    updateAddFormState();
-
-    if (btn) { btn.disabled = true; btn.textContent = "생성 중..."; }
-    $("feedbackText").classList.remove("placeholder");
-    $("feedbackText").innerHTML = '<span class="spinner"></span>피드백을 생성하는 중...';
+    const btn = $("publishBtn");
+    if (btn) { btn.disabled = true; btn.textContent = "출판 중..."; }
+    renderTaskCheckList();
 
     if (!hasApiKey()) {
       feedback = { date: todayStr(), text: buildLocalFeedback(done, total, rate, pendingList), generatedAt: new Date().toISOString() };
       saveFeedback();
-      if (btn) { btn.disabled = false; btn.textContent = "하루 마무리"; }
-      renderFeedback();
-      isGeneratingFeedback = false;
-      renderComic();
-      updateAddFormState();
+      finishPublish(btn);
       return;
     }
 
@@ -631,36 +559,126 @@
       `전체: ${total}개, 완료: ${done}개, 달성률: ${rate}%\n` +
       `완료한 항목: ${doneList}\n` +
       `미완료 항목: ${pendingList}\n\n` +
-      `이 데이터를 바탕으로 하루를 마무리하는 피드백을 한국어로 2~3문장 작성해줘.\n` +
-      `조건: 톤 강도는 달성률에 반비례해야 한다 — 80% 이상이면 부드럽고 격려하는 톤, ` +
-      `40~79%면 미완료 항목을 구체적으로 짚어 균형 있게 지적하는 톤, ` +
-      `40% 미만이면 훨씬 단호하고 따끔한 톤으로 미완료 항목을 콕 집어 질책할 것, ` +
-      `0%라면 가장 강하고 직설적으로 질책할 것. ` +
-      `완료한 항목이 있다면 톤과 무관하게 짧게라도 칭찬할 것. 너무 길게 쓰지 말 것.`;
+      `이 데이터를 바탕으로 하루를 마무리하는 그림일기 피드백을 한국어 2문장으로 작성해줘.\n` +
+      `조건: 항상 다정하고 따뜻한 톤을 유지할 것. 완료한 항목은 짧게 칭찬할 것. ` +
+      `미완료 항목이 있다면 명확히 언급하되, 절대 꾸짖거나 다그치지 말고 ` +
+      `"내일 다시 그리면 돼요" 같은 다정한 격려로 마무리할 것.`;
 
     try {
       let text = await callOpenRouter(prompt, 300);
-      if (!text || !text.trim()) {
-        console.warn("AI가 빈 피드백을 반환해 로컬 피드백으로 대체합니다.");
-        text = buildLocalFeedback(done, total, rate, pendingList);
-      }
+      if (!text || !text.trim()) text = buildLocalFeedback(done, total, rate, pendingList);
       feedback = { date: todayStr(), text, generatedAt: new Date().toISOString() };
       saveFeedback();
-      renderFeedback();
     } catch (e) {
-      console.warn("AI 피드백 생성 실패, 로컬 피드백으로 대체합니다:", e.message);
+      console.warn("AI 피드백 생성 실패, 기본 문구로 대체합니다:", e.message);
       feedback = { date: todayStr(), text: buildLocalFeedback(done, total, rate, pendingList), generatedAt: new Date().toISOString() };
       saveFeedback();
-      renderFeedback();
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = "하루 마무리"; }
-      isGeneratingFeedback = false;
-      renderComic();
-      updateAddFormState();
+      finishPublish(btn);
     }
   }
 
-  // ---------- rendering ----------
+  function finishPublish(btn) {
+    if (btn) { btn.disabled = false; btn.textContent = "📖 출판하기"; }
+    isGeneratingFeedback = false;
+    renderTaskCheckList();
+    renderComic();
+    renderFeedback();
+    showScreen("diary");
+  }
+
+  // ---------- rendering: 공용 패널 빌더 ----------
+  function buildPanel(task, interactive) {
+    const panel = document.createElement("div");
+
+    if (!task) {
+      panel.className = "panel empty-slot";
+      return panel;
+    }
+
+    panel.className = "panel " + (task.done ? "done" : "pending");
+
+    if (interactive) {
+      const head = document.createElement("div");
+      head.className = "panel-head";
+      head.innerHTML = `<span class="t">${task.text}</span>`;
+      panel.appendChild(head);
+    }
+
+    if (task.done) {
+      const emoji = document.createElement("div");
+      emoji.className = "panel-emoji";
+      emoji.textContent = emojiFor(task.text);
+      panel.appendChild(emoji);
+
+      const caption = document.createElement("div");
+      if (task.captionLoading) {
+        caption.className = "panel-caption loading";
+        caption.textContent = "대사 생성 중...";
+      } else {
+        caption.className = "panel-caption";
+        caption.textContent = task.caption || "오늘도 해냈다!";
+      }
+      panel.appendChild(caption);
+    } else {
+      const wrap = document.createElement("div");
+      wrap.className = "pending-wrap";
+      wrap.innerHTML =
+        `<span class="pending-dog">🐶</span>` +
+        `<span class="stamp">원고 미도착</span>` +
+        `<span class="pending-note">${noteFor(task.id)}</span>`;
+      panel.appendChild(wrap);
+    }
+
+    return panel;
+  }
+
+  function renderComic() {
+    const grid = $("comicGrid");
+    grid.innerHTML = "";
+    for (let i = 0; i < MAX_TASKS; i++) {
+      grid.appendChild(buildPanel(tasks[i] || null, true));
+    }
+  }
+
+  // ---------- 홈 화면 ----------
+  function renderHomeList() {
+    const list = $("homeTaskList");
+    list.innerHTML = "";
+    $("homeCountLabel").textContent = `(${tasks.length}/${MAX_TASKS})`;
+    if (tasks.length === 0) {
+      const hint = document.createElement("div");
+      hint.className = "empty-hint";
+      hint.textContent = "아직 추가한 할 일이 없어요.";
+      list.appendChild(hint);
+      return;
+    }
+    tasks.forEach((task) => {
+      const row = document.createElement("li");
+      row.className = "task-row" + (task.done ? " done" : "");
+      row.innerHTML =
+        `<span class="stars">${starString(task.priority)}</span>` +
+        `<span class="task-text">${task.text}</span>` +
+        `<button class="del-btn" title="삭제">×</button>`;
+      row.querySelector(".del-btn").addEventListener("click", () => deleteTask(task.id));
+      list.appendChild(row);
+    });
+  }
+
+  function updateAddFormState() {
+    const full = tasks.length >= MAX_TASKS;
+    $("taskInput").disabled = full;
+    $("taskInput").placeholder = full ? `오늘은 ${MAX_TASKS}개까지 채웠어요` : "오늘 할 일을 적어보세요";
+    $("addSubmitBtn").disabled = full;
+  }
+
+  function renderStars() {
+    document.querySelectorAll("#starRow .star-btn").forEach((btn) => {
+      btn.classList.toggle("filled", Number(btn.dataset.value) <= newTaskStars);
+    });
+  }
+
+  // ---------- 할 일 화면 ----------
   function renderProgress() {
     const total = tasks.length;
     const done = tasks.filter((t) => t.done).length;
@@ -669,25 +687,20 @@
     $("progressLabel").textContent = `${done} / ${total}`;
   }
 
-  function renderComic() {
-    const grid = $("comicGrid");
-    grid.innerHTML = "";
-
+  function renderTaskCheckList() {
+    const list = $("taskCheckList");
+    list.innerHTML = "";
+    renderProgress();
     if (tasks.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "empty-state";
-      empty.textContent = "할 일을 추가하면 만화 칸이 여기에 생겨요";
-      grid.appendChild(empty);
-      renderProgress();
+      const hint = document.createElement("div");
+      hint.className = "empty-hint";
+      hint.textContent = "홈 화면에서 오늘 할 일을 먼저 추가해보세요.";
+      list.appendChild(hint);
       return;
     }
-
     tasks.forEach((task) => {
-      const panel = document.createElement("div");
-      panel.className = "panel " + (task.done ? "done" : "pending");
-
-      const head = document.createElement("div");
-      head.className = "panel-head";
+      const row = document.createElement("li");
+      row.className = "task-row" + (task.done ? " done" : "");
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -695,50 +708,22 @@
       checkbox.disabled = isGeneratingFeedback;
       checkbox.addEventListener("change", () => toggleTask(task.id));
 
+      const stars = document.createElement("span");
+      stars.className = "stars";
+      stars.innerHTML = starString(task.priority);
+
       const textSpan = document.createElement("span");
       textSpan.className = "task-text";
       textSpan.textContent = task.text;
 
-      const delBtn = document.createElement("button");
-      delBtn.className = "del-btn";
-      delBtn.textContent = "×";
-      delBtn.title = "삭제";
-      delBtn.disabled = isGeneratingFeedback;
-      delBtn.addEventListener("click", () => deleteTask(task.id));
-
-      head.appendChild(checkbox);
-      head.appendChild(textSpan);
-      head.appendChild(delBtn);
-
-      const body = document.createElement("div");
-      body.className = "panel-body";
-
-      if (task.done) {
-        const illust = document.createElement("div");
-        illust.className = "panel-illustration";
-        const cat = matchCategory(task.text);
-        illust.innerHTML = ILLUSTRATIONS[cat.id] || ILLUSTRATIONS.default;
-        body.appendChild(illust);
-
-        const caption = document.createElement("div");
-        if (task.captionLoading) {
-          caption.className = "panel-caption loading";
-          caption.textContent = "대사 생성 중...";
-        } else {
-          caption.className = "panel-caption";
-          caption.textContent = task.caption || "완료!";
-        }
-        body.appendChild(caption);
-      }
-
-      panel.appendChild(head);
-      panel.appendChild(body);
-      grid.appendChild(panel);
+      row.appendChild(checkbox);
+      row.appendChild(stars);
+      row.appendChild(textSpan);
+      list.appendChild(row);
     });
-
-    renderProgress();
   }
 
+  // ---------- 그림일기 화면 ----------
   function renderFeedback() {
     const el = $("feedbackText");
     const meta = $("feedbackMeta");
@@ -746,78 +731,61 @@
       el.classList.remove("placeholder");
       el.textContent = feedback.text;
       const t = new Date(feedback.generatedAt);
-      meta.textContent = `생성 시각: ${t.getHours()}:${String(t.getMinutes()).padStart(2, "0")}`;
+      meta.textContent = `출판 시각: ${t.getHours()}:${String(t.getMinutes()).padStart(2, "0")}`;
     } else {
       el.classList.add("placeholder");
-      el.textContent = "버튼을 누르면 오늘 하루를 분석한 AI 피드백이 표시됩니다.";
+      el.textContent = '할 일 화면에서 "출판하기"를 누르면 다정한 코멘트가 도착해요.';
       meta.textContent = "";
     }
   }
 
-  function renderHistory() {
-    let history = [];
-    try { history = JSON.parse(localStorage.getItem(LS_HISTORY)) || []; } catch (e) {}
+  // ---------- 보관함 화면 ----------
+  function loadArchive() {
+    try { return JSON.parse(localStorage.getItem(LS_ARCHIVE)) || []; } catch (e) { return []; }
+  }
 
-    const container = $("historyList");
-    container.innerHTML = "";
+  function renderArchiveGrid() {
+    const archive = loadArchive();
+    const grid = $("archiveGrid");
+    grid.innerHTML = "";
 
-    if (history.length === 0) {
+    if (archive.length === 0) {
       const empty = document.createElement("div");
-      empty.className = "history-empty";
-      empty.textContent = "아직 지난 기록이 없어요. 오늘 하루가 지나면 여기에 쌓여요.";
-      container.appendChild(empty);
+      empty.className = "archive-empty";
+      empty.textContent = "아직 보관된 페이지가 없어요. 오늘이 지나면 여기에 쌓여요.";
+      grid.appendChild(empty);
       return;
     }
 
-    history.slice().reverse().forEach((h) => {
-      const item = document.createElement("div");
-      item.className = "history-item";
-
-      const [y, m, d] = h.date.split("-");
-      const dateEl = document.createElement("div");
-      dateEl.className = "history-date";
-      dateEl.textContent = `${Number(m)}월 ${Number(d)}일 (${weekdayLabel(h.date)})`;
-
-      const rateEl = document.createElement("span");
-      rateEl.className = "history-rate";
-      rateEl.textContent = `${h.done}/${h.total} · ${h.rate}%`;
-      dateEl.appendChild(rateEl);
-
-      const barWrap = document.createElement("div");
-      barWrap.className = "history-bar-wrap";
-      const bar = document.createElement("div");
-      bar.className = "history-bar";
-      bar.style.width = h.rate + "%";
-      barWrap.appendChild(bar);
-
-      const fbEl = document.createElement("div");
-      fbEl.className = "history-feedback";
-      fbEl.textContent = h.feedbackText || "피드백 기록 없음";
-
-      item.appendChild(dateEl);
-      item.appendChild(barWrap);
-      item.appendChild(fbEl);
-      container.appendChild(item);
+    archive.slice().reverse().forEach((entry) => {
+      const thumb = document.createElement("div");
+      thumb.className = "thumb";
+      const emojis = (entry.tasks || []).filter((t) => t.done).map((t) => emojiFor(t.text)).join("") || "🐶";
+      thumb.innerHTML =
+        `<div class="mini-emojis">${emojis}</div>` +
+        `<div class="rate">${entry.rate}%</div>` +
+        `<div class="date">${formatDateLabel(entry.date)}</div>`;
+      thumb.addEventListener("click", () => openArchiveModal(entry));
+      grid.appendChild(thumb);
     });
   }
 
-  // ---------- task operations ----------
-  function updateAddFormState() {
-    const full = tasks.length >= MAX_TASKS;
-    const locked = isGeneratingFeedback;
-    $("taskCountLabel").textContent = `(${tasks.length}/${MAX_TASKS})`;
-    $("taskInput").disabled = full || locked;
-    $("taskInput").placeholder = locked
-      ? "피드백 생성 중에는 수정할 수 없어요"
-      : (full ? `최대 ${MAX_TASKS}개까지 추가했어요` : "오늘 할 일을 적어보세요");
-    const submitBtn = $("addForm").querySelector("button[type=submit]");
-    if (submitBtn) submitBtn.disabled = full || locked;
+  function openArchiveModal(entry) {
+    $("modalDate").textContent = "📖 " + formatDateLabel(entry.date) + ` · ${entry.done}/${entry.total} (${entry.rate}%)`;
+    const grid = $("modalGrid");
+    grid.innerHTML = "";
+    const t = entry.tasks || [];
+    for (let i = 0; i < MAX_TASKS; i++) {
+      grid.appendChild(buildPanel(t[i] || null, true));
+    }
+    $("modalFeedback").textContent = "🐶 " + (entry.feedbackText || "그날의 코멘트가 기록되지 않았어요.");
+    $("archiveModal").classList.add("show");
   }
 
+  // ---------- task operations ----------
   function addTask(text) {
-    if (isGeneratingFeedback) return;
     if (tasks.length >= MAX_TASKS) {
-      alert(`할 일은 최대 ${MAX_TASKS}개까지 추가할 수 있습니다.`);
+      alert(`할 일은 오늘 최대 ${MAX_TASKS}개까지 추가할 수 있어요.`);
       return;
     }
     const trimmed = text.trim();
@@ -825,13 +793,18 @@
     tasks.push({
       id: Date.now() + "_" + Math.random().toString(36).slice(2, 7),
       text: trimmed,
+      priority: newTaskStars,
       done: false,
+      category: "",
       caption: "",
       captionLoading: false
     });
     saveTasks();
-    renderComic();
+    renderHomeList();
     updateAddFormState();
+    renderTaskCheckList();
+    renderComic();
+    showScreen("tasks");
   }
 
   function toggleTask(id) {
@@ -840,49 +813,82 @@
     if (!task) return;
     task.done = !task.done;
     saveTasks();
+    renderTaskCheckList();
     renderComic();
+    renderHomeList();
     if (task.done && !task.caption) {
       generateCaption(task);
     }
   }
 
   function deleteTask(id) {
-    if (isGeneratingFeedback) return;
     tasks = tasks.filter((t) => t.id !== id);
     saveTasks();
-    renderComic();
+    renderHomeList();
     updateAddFormState();
+    renderTaskCheckList();
+    renderComic();
   }
 
-  // ---------- midnight rollover watcher ----------
+  // ---------- 화면 전환 ----------
+  function showScreen(name) {
+    document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === "screen-" + name));
+    document.querySelectorAll(".bottom-nav button").forEach((b) => b.classList.toggle("active", b.dataset.screen === name));
+    if (name === "archive") renderArchiveGrid();
+  }
+
+  // ---------- 자정 감지 ----------
   function checkDateRollover() {
     const savedDate = localStorage.getItem(LS_DATE);
     if (savedDate !== todayStr()) {
       loadState();
-      renderComic();
-      renderFeedback();
-      updateAddFormState();
-      renderHistory();
+      renderAll();
     }
   }
 
+  function renderAll() {
+    $("todayLabel").textContent = formatDateLabel(todayStr());
+    renderHomeList();
+    updateAddFormState();
+    renderTaskCheckList();
+    renderComic();
+    renderFeedback();
+    renderArchiveGrid();
+  }
+
   // ---------- init ----------
+  document.querySelectorAll("#starRow .star-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      newTaskStars = Number(btn.dataset.value);
+      renderStars();
+    });
+  });
+
   $("addForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const input = $("taskInput");
     addTask(input.value);
     input.value = "";
+    newTaskStars = 2;
+    renderStars();
   });
 
-  $("feedbackBtn").addEventListener("click", generateFeedback);
+  $("publishBtn").addEventListener("click", generateFeedback);
+
+  document.querySelectorAll(".bottom-nav button").forEach((btn) => {
+    btn.addEventListener("click", () => showScreen(btn.dataset.screen));
+  });
+
+  $("modalCloseBtn").addEventListener("click", () => $("archiveModal").classList.remove("show"));
+  $("archiveModal").addEventListener("click", (e) => {
+    if (e.target.id === "archiveModal") $("archiveModal").classList.remove("show");
+  });
 
   $("keyBanner").classList.toggle("show", !hasApiKey());
 
   loadState();
-  renderComic();
-  renderFeedback();
-  updateAddFormState();
-  renderHistory();
+  renderStars();
+  renderAll();
 
   setInterval(checkDateRollover, 60 * 1000);
 })();
